@@ -1,0 +1,142 @@
+name: ReleaseLibraries
+
+on:
+  push:
+      branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  ARTIFACTORY_USERNAME: "sreenivas.middleware@gmail.com"
+  ARTIFACTORY_PASSWORD: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
+  ARTIFACTORY_HOST: "https://gochipathala.jfrog.io/artifactory/fms-libs-release"
+  ARTIFACT_VERSION: "1.0"
+  ARTIFACTORY_LOCAL: "https://gochipathala.jfrog.io/artifactory/fms-libs-snapshot"
+  ARTIFACTORY_PATH: "com/test_artfct/jar"
+  VERSION_TYPE: "SNAPSHOT"
+  COMMITMESSAGE: ${{ github.event.head_commit.message }}
+
+jobs:
+
+  ReleaseLibraries-Job:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - name: Validate input commit message
+        run: |
+          message=${{ contains(github.event.head_commit.message, 'Release Library') }}
+          if [ ${message} == false ]; then
+            echo "Invalid commit message, Please use 'Release Library' to  run job "
+            exit -1
+          fi
+          echo "Commit message is :" $message
+          
+      - name: Setting up variables
+        run: |
+          echo "WORK_DIR=`pwd`" >> $GITHUB_ENV
+          
+      - name: Check-out the git branch
+        uses: actions/checkout@v3.3.0
+
+      - name: Perform BOM file validation
+        run: |
+          for i in *.bom
+          do
+          echo "file name :" $i
+          while read line;
+          do
+            data+=("$line")
+          done <$i
+          done
+          echo "Available BOM file :" $i
+          for value in "${data[@]}";
+          do
+            if [ ${value} == false ]; then
+              echo "Pom file not available "
+              exit -1
+            fi
+
+            echo "Sub modules/Dependencies :" $value
+            find $value/pom.xml
+          done
+          
+      - name: Setup Java Runtime
+        uses: actions/setup-java@v3.10.0
+        with:
+          distribution: 'temurin'
+          java-version: '19'
+          #cache: 'maven'
+
+      - name: Set up Cache for Maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: GitHub Actions Build with Maven
+        run: |
+          #mvn -B package --file pom.xml
+          #mvn -s ./settings.xml package -Dmaven.test.skip
+          mvn -s settings.xml package -Drevision=${{env.ARTIFACT_VERSION}}  -Dprefix=${{env.PREFIX}}-${{env.ENVIRONMENT}}-
+
+      - name: Upload artifacts for deployment job to github
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: release-library
+          path: |
+            ${{ github.workspace }}/**/target/*.jar
+            ${{ github.workspace }}/**/pom.xml
+
+      - name: Download artifact from build job in github
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: release-library
+          
+      #- name: Display structure of downloaded files in github
+        #run: ls -R
+        
+      - name: Deploy jar to Artifactory
+        run: |
+          while read line;
+          do
+            data+=("$line")
+          done <test.bom
+          for value in "${data[@]}";
+          do
+            echo "Sub modules/Dependencies :" $value
+            find $value/pom.xml
+            VERSION=${{ env.ARTIFACT_VERSION }}
+            ARTIFACT=${value}-${VERSION}.jar
+            DEPLOY_ARTIFACT_PATH="${{env.ARTIFACTORY_LOCAL}}/${{env.ARTIFACTORY_PATH}}/$ARTIFACT"
+            ARTIFACT_PATH=./**/target/$ARTIFACT
+            echo artifact name: $ARTIFACT
+            echo deploy artifact path: $DEPLOY_ARTIFACT_PATH
+            #PREFIX=${{env.PREFIX}}-${{env.ENVIRONMENT}}-
+            #echo "Deploying jar $PREFIX${{ matrix.images }} to artifactory"
+            echo deploy artifact path: $DEPLOY_ARTIFACT_PATH
+            curl -u ${{env.ARTIFACTORY_USERNAME}}:${{env.ARTIFACTORY_PASSWORD}} -X PUT "$DEPLOY_ARTIFACT_PATH" -T $ARTIFACT_PATH
+
+          done
+          
+      #- name: get latest tag
+        #id: latest-tag
+        #run: |
+          #tag_name="DEV."
+          #latest_tag=$(git tag --sort creatordate -l $tag_name* | tail -n1)
+          #if [ -z "$latest_tag" ];
+            #then
+              #tag_name=""$tag_name"100000"
+          #else
+              #tag_name=$(perl -pe 's/(\d+)(?!.*\d+)/$1+1/e' <<< $latest_tag)
+          #fi
+          #echo "TAG_NAME=${tag_name}" >> $GITHUB_OUTPUT
+          #echo "tag name = " $tag_name
+          
+      - name: Creating Tag
+        run: |
+          tag_name="${{ steps.latest-tag.outputs.TAG_NAME }}"
+          echo "Creating new tag $tag_name"
+          branch_name=$(echo $GITHUB_REF | awk -F/ '{print $NF}')
+          git tag $tag_Name -m "$branch_name"
+          git push --tags
