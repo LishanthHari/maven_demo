@@ -18,14 +18,33 @@ env:
 
 jobs:
 
+ ReleaseLibraries-Job:
+   runs-on: ubuntu-22.04
+   steps:
 
-          
+      - name: Validate input commit message
+        run: |
+          message=${{ contains(github.event.head_commit.message, 'Release Library') }}
+          if [ ${message} == false ]; then
+            echo "Invalid commit message, Please use 'Release Library' to run job "
+            exit -1
+          fi
+          echo "Commit message is :" $message
+
       - name: Setting up variables
         run: |
           echo "WORK_DIR=`pwd`" >> $GITHUB_ENV
           
       - name: Check-out the git branch
         uses: actions/checkout@v3.3.0
+        with:
+          ref: ${{github.head_ref}}
+      - name: git
+        run: |
+         git fetch
+         git checkout main   
+      - name: Get diff
+        run: git diff --dirstat=files,0 HEAD~1 ${{github.head_ref}} -- | sed 's/mavenMultimodule/''/' |  cut -f2 -d"/"
 
       - name: Perform BOM file validation
         run: |
@@ -35,6 +54,8 @@ jobs:
           while read line;
           do
             data+=("$line")
+             $data >>$GLOBALV
+            echo $GLOBALV
           done <$i
           done
           echo "Available BOM file :" $i
@@ -93,6 +114,7 @@ jobs:
           done <test.bom
           for value in "${data[@]}";
           do
+          
             echo "Sub modules/Dependencies :" $value
             find $value/pom.xml
             VERSION=${{ env.ARTIFACT_VERSION }}
@@ -122,10 +144,10 @@ jobs:
           #echo "TAG_NAME=${tag_name}" >> $GITHUB_OUTPUT
           #echo "tag name = " $tag_name e
           
-      - name: Creating Tag
-        run: |
-          tag_name="${{ steps.latest-tag.outputs.TAG_NAME }}"
-          echo "Creating new tag $tag_name"
-          branch_name=$(echo $GITHUB_REF | awk -F/ '{print $NF}')
-          git tag $tag_Name -m "$branch_name"
-          git push --tags
+      #- name: Creating Tag
+        #run: |
+          #tag_name="${{ steps.latest-tag.outputs.TAG_NAME }}"
+          #echo "Creating new tag $tag_name"
+          #branch_name=$(echo $GITHUB_REF | awk -F/ '{print $NF}')
+          #git tag $tag_Name -m "$branch_name"
+          #git push --tags
