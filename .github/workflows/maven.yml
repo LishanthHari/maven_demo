@@ -18,18 +18,7 @@ env:
 
 jobs:
 
-  ReleaseLibraries-Job:
-    runs-on: ubuntu-22.04
-    steps:
 
-      - name: Validate input commit message
-        run: |
-          message=${{ contains(github.event.head_commit.message, 'Release Library') }}
-          if [ ${message} == false ]; then
-            echo "Invalid commit message, Please use 'Release Library' to  run job "
-            exit -1
-          fi
-          echo "Commit message is :" $message
           
       - name: Setting up variables
         run: |
