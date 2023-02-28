@@ -131,7 +131,7 @@ jobs:
               #tag_name=$(perl -pe 's/(\d+)(?!.*\d+)/$1+1/e' <<< $latest_tag)
           #fi
           #echo "TAG_NAME=${tag_name}" >> $GITHUB_OUTPUT
-          #echo "tag name = " $tag_name
+          #echo "tag name = " $tag_name e
           
       - name: Creating Tag
         run: |
