@@ -2,9 +2,9 @@ name: ReleaseLibraries
 
 on:
   push:
-      branches: [ "main" ]
+      branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 
 env: 
@@ -43,7 +43,7 @@ jobs:
       - name: git
         run: |
          git fetch
-         git checkout main   
+         git checkout master  
       - name: Get diff
         run: git diff --dirstat=files,0 HEAD~1 ${{github.head_ref}} -- | sed 's/mavenMultimodule/''/' |  cut -f2 -d"/"
 
