@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [ "master" ]
 
-env:
-  ARTIFACTORY_USERNAME: "sreenivas.middleware@gmail.com"
+#env:
+  #ARTIFACTORY_USERNAME: "sreenivas.middleware@gmail.com"
   #ARTIFACTORY_PASSWORD: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
   #ARTIFACTORY_HOST: "https://gochipathala.jfrog.io/artifactory/fms-libs-release"
   #ARTIFACT_VERSION: "1.0"
