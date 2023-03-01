@@ -1,5 +1,5 @@
 name: ReleaseLibraries
-#hi
+
 on:
   push:
       branches: [ "master" ]
@@ -43,7 +43,7 @@ jobs:
       - name: git
         run: |
          git fetch
-         git checkout master  
+         git checkout main  
       - name: Get diff
         run: git diff --dirstat=files,0 HEAD~1 ${{github.head_ref}} -- | sed 's/mavenMultimodule/''/' |  cut -f2 -d"/"
 
@@ -153,3 +153,4 @@ jobs:
           #git tag $tag_Name -m "$branch_name"
           #git push --tags
           #TEST
+
