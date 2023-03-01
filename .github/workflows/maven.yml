@@ -6,7 +6,9 @@ on:
   pull_request:
     branches: [ "master" ]
 
-env: 
+
+#env: 
+run-name: Deploy to ${{ inputs.deploy_target }} by @${{ github.actor }}
   #ARTIFACTORY_USERNAME: "sreenivas.middleware@gmail.com"
   #ARTIFACTORY_PASSWORD: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
   #ARTIFACTORY_HOST: "https://gochipathala.jfrog.io/artifactory/fms-libs-release"
@@ -14,7 +16,7 @@ env:
   #ARTIFACTORY_LOCAL: "https://gochipathala.jfrog.io/artifactory/fms-libs-snapshot"
   #ARTIFACTORY_PATH: "com/test_artfct/jar"
   #VERSION_TYPE: "SNAPSHOT"
-  COMMITMESSAGE: ${{ github.event.head_commit.message }}
+ # COMMITMESSAGE: ${{ github.event.head_commit.message }}
 
 jobs:
 
