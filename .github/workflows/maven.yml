@@ -8,8 +8,8 @@ on:
 
 env:
   ARTIFACTORY_USERNAME: "sreenivas.middleware@gmail.com"
-  ARTIFACTORY_PASSWORD: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
-  ARTIFACTORY_HOST: "https://gochipathala.jfrog.io/artifactory/fms-libs-release"
+  #ARTIFACTORY_PASSWORD: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
+  #ARTIFACTORY_HOST: "https://gochipathala.jfrog.io/artifactory/fms-libs-release"
   #ARTIFACT_VERSION: "1.0"
   #ARTIFACTORY_LOCAL: "https://gochipathala.jfrog.io/artifactory/fms-libs-snapshot"
   #ARTIFACTORY_PATH: "com/test_artfct/jar"
