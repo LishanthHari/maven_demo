@@ -2,21 +2,20 @@ name: ReleaseLibraries
 
 on:
   push:
-      branches: [ "master" ]
+      branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 
-#env: 
-run-name: Deploy to ${{ inputs.deploy_target }} by @${{ github.actor }}
-  #ARTIFACTORY_USERNAME: "sreenivas.middleware@gmail.com"
-  #ARTIFACTORY_PASSWORD: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
-  #ARTIFACTORY_HOST: "https://gochipathala.jfrog.io/artifactory/fms-libs-release"
-  #ARTIFACT_VERSION: "1.0"
-  #ARTIFACTORY_LOCAL: "https://gochipathala.jfrog.io/artifactory/fms-libs-snapshot"
-  #ARTIFACTORY_PATH: "com/test_artfct/jar"
-  #VERSION_TYPE: "SNAPSHOT"
- # COMMITMESSAGE: ${{ github.event.head_commit.message }}
+env: 
+  ARTIFACTORY_USERNAME: "sreenivas.middleware@gmail.com"
+  ARTIFACTORY_PASSWORD: ${{ secrets.JFROG_ARTIFACTORY_TOKEN }}
+  ARTIFACTORY_HOST: "https://gochipathala.jfrog.io/artifactory/fms-libs-release"
+  ARTIFACT_VERSION: "1.0"
+  ARTIFACTORY_LOCAL: "https://gochipathala.jfrog.io/artifactory/fms-libs-snapshot"
+  ARTIFACTORY_PATH: "com/test_artfct/jar"
+  VERSION_TYPE: "SNAPSHOT"
+  COMMITMESSAGE: ${{ github.event.head_commit.message }}
 
 jobs:
 
@@ -24,14 +23,14 @@ jobs:
    runs-on: ubuntu-22.04
    steps:
 
-     # - name: Validate input commit message
-        #run: |
-          #message=${{ contains(github.event.head_commit.message, 'Release Library') }}
-          #if [ ${message} == false ]; then
-            #echo "Invalid commit message, Please use 'Release Library' to run job "
-            #exit -1
-          #fi
-          #echo "Commit message is :" $message
+      - name: Validate input commit message
+        run: |
+          message=${{ contains(github.event.head_commit.message, 'Release Library') }}
+          if [ ${message} == false ]; then
+            echo "Invalid commit message, Please use 'Release Library' to run job "
+            exit -1
+          fi
+          echo "Commit message is :" $message
 
       - name: Setting up variables
         run: |
